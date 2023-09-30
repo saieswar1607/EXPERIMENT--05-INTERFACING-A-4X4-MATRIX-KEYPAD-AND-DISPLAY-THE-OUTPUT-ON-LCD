@@ -47,81 +47,43 @@ Whereas in 8 bit mode we can send the 8-bit data directly in one stroke since we
 
 There are some preset commands instructions in LCD, which we need to send to LCD through some microcontroller. Some important command instructions are given below:
 
-Hex Code
+Hex Code : Command to LCD Instruction Register
 
-Command to LCD Instruction Register
+0F : LCD ON, cursor ON
 
-0F
+01 : Clear display screen
 
-LCD ON, cursor ON
+02 : Return home
 
-01
+04 : Decrement cursor (shift cursor to left)
 
-Clear display screen
+06 : Increment cursor (shift cursor to right)
 
-02
+05 : Shift display right
 
-Return home
+07 : Shift display left
 
-04
+0E : Display ON, cursor blinking
 
-Decrement cursor (shift cursor to left)
+80 : Force cursor to beginning of first line
 
-06
+C0 : Force cursor to beginning of second line
 
-Increment cursor (shift cursor to right)
+38 : 2 lines and 5×7 matrix
 
-05
+83 : Cursor line 1 position 3
 
-Shift display right
+3C : Activate second line
 
-07
+08 : Display OFF, cursor OFF
 
-Shift display left
+C1 : Jump to second line, position 1
 
-0E
+OC : Display ON, cursor OFF
 
-Display ON, cursor blinking
+C1 : Jump to second line, position 1
 
-80
-
-Force cursor to beginning of first line
-
-C0
-
-Force cursor to beginning of second line
-
-38
-
-2 lines and 5×7 matrix
-
-83
-
-Cursor line 1 position 3
-
-3C
-
-Activate second line
-
-08
-
-Display OFF, cursor OFF
-
-C1
-
-Jump to second line, position 1
-
-OC
-
-Display ON, cursor OFF
-
-C1
-
-Jump to second line, position 1
-
-C2
-
-Jump to second line, position 2
+C2 : Jump to second line, position 2
  
 ## Procedure:
  1. click on STM 32 CUBE IDE, the following screen will appear 
@@ -171,24 +133,281 @@ We are now at the last part of step by step guide on how to simulate STM32 proje
 ![image](https://user-images.githubusercontent.com/36288975/233856847-32bea88a-565f-4e01-9c7e-4f7ed546ddf6.png)
 
 14. Double click on the the MCU part to open settings. Next to the Program File option, give full path to the Hex file generated using STM32Cube IDE. Then set the external crystal frequency to 8M (i.e. 8 MHz). Click OK to save the changes.
-https://engineeringxpert.com/wp-content/uploads/2022/04/26.png
+![image](https://engineeringxpert.com/wp-content/uploads/2022/04/26.png)
 
 15. click on debug and simulate using simulation as shown below 
 
 ![image](https://user-images.githubusercontent.com/36288975/233856904-99eb708a-c907-4595-9025-c9dbd89b8879.png)
 
-## CIRCUIT DIAGRAM 
- 
 
 ## STM 32 CUBE PROGRAM :
+```
+Developed By : Sai Eswar Kandukuri
+Reg.No : 212221240020
+```
+```
+#include "main.h"
+#include "lcd.h"
+#include "stdbool.h"
+
+bool col1,col2,col3,col4;
+
+void SystemClock_Config(void);
+static void MX_GPIO_Init(void);
+
+void key();
 
 
 
-## Output screen shots of proteus  :
- 
- 
- ## CIRCUIT DIAGRAM (EXPORT THE GRAPHICS TO PDF AND ADD THE SCREEN SHOT HERE): 
- 
- 
+int main(void)
+{
+  HAL_Init();
+  SystemClock_Config();
+  MX_GPIO_Init();
+  while (1)
+  {
+    key();
+    HAL_Delay(1000);
+  }
+}
+void key()
+{
+	Lcd_PortType ports[] = {GPIOA,GPIOA,GPIOA,GPIOA};
+	Lcd_PinType pins[] = {GPIO_PIN_3,GPIO_PIN_2,GPIO_PIN_1,GPIO_PIN_0};
+	Lcd_HandleTypeDef lcd;
+	lcd = Lcd_create(ports,pins,GPIOB,GPIO_PIN_0,GPIOB,GPIO_PIN_1,LCD_4_BIT_MODE);
+
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_0, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_3, GPIO_PIN_SET);
+
+	col1 = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_4);
+	col2 = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_5);
+	col3 = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_6);
+	col4 = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_7);
+
+	if(!col1){
+		Lcd_cursor(&lcd,0,1);
+		Lcd_string(&lcd,"key 7\n");
+		HAL_Delay(500);
+		col1=1;
+	}
+	else if(!col2){
+		Lcd_cursor(&lcd,0,1);
+		Lcd_string(&lcd,"key 8\n");
+		HAL_Delay(500);
+		col2=1;
+		}
+	else if(!col3){
+		Lcd_cursor(&lcd,0,1);
+		Lcd_string(&lcd,"key 9\n");
+		HAL_Delay(500);
+		col3=1;
+	}
+	else if(!col4){
+		Lcd_cursor(&lcd,0,1);
+		Lcd_string(&lcd,"key %\n");
+		HAL_Delay(500);
+		col4=1;
+	}
+
+
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_0, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_3, GPIO_PIN_SET);
+
+	col1 = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_4);
+	col2 = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_5);
+	col3 = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_6);
+	col4 = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_7);
+
+	if(!col1){
+		Lcd_cursor(&lcd,0,1);
+		Lcd_string(&lcd,"key 4\n");
+		HAL_Delay(500);
+		col1=1;
+	}
+	else if(!col2){
+		Lcd_cursor(&lcd,0,1);
+		Lcd_string(&lcd,"key 5\n");
+		HAL_Delay(500);
+		col2=1;
+		}
+	else if(!col3){
+		Lcd_cursor(&lcd,0,1);
+		Lcd_string(&lcd,"key 6\n");
+		HAL_Delay(500);
+		col3=1;
+	}
+	else if(!col4){
+		Lcd_cursor(&lcd,0,1);
+		Lcd_string(&lcd,"key *\n");
+		HAL_Delay(500);
+		col4=1;
+	}
+
+
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_0, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_3, GPIO_PIN_SET);
+
+	col1 = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_4);
+	col2 = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_5);
+	col3 = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_6);
+	col4 = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_7);
+
+	if(!col1){
+		Lcd_cursor(&lcd,0,1);
+		Lcd_string(&lcd,"key 1\n");
+		HAL_Delay(500);
+		col1=1;
+	}
+	else if(!col2){
+		Lcd_cursor(&lcd,0,1);
+		Lcd_string(&lcd,"key 2\n");
+		HAL_Delay(500);
+		col2=1;
+		}
+	else if(!col3){
+		Lcd_cursor(&lcd,0,1);
+		Lcd_string(&lcd,"key 3\n");
+		HAL_Delay(500);
+		col3=1;
+	}
+	else if(!col4){
+		Lcd_cursor(&lcd,0,1);
+		Lcd_string(&lcd,"key -\n");
+		HAL_Delay(500);
+		col4=1;
+	}
+
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_0, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_3, GPIO_PIN_RESET);
+
+	col1 = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_4);
+	col2 = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_5);
+	col3 = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_6);
+	col4 = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_7);
+
+	if(!col1){
+		Lcd_cursor(&lcd,0,1);
+		Lcd_string(&lcd,"key ON/C\n");
+		HAL_Delay(500);
+		col1=1;
+	}
+	else if(!col2){
+		Lcd_cursor(&lcd,0,1);
+		Lcd_string(&lcd,"key 0\n");
+		HAL_Delay(500);
+		col2=1;
+		}
+	else if(!col3){
+		Lcd_cursor(&lcd,0,1);
+		Lcd_string(&lcd,"key =\n");
+		HAL_Delay(500);
+		col3=1;
+	}
+	else if(!col4){
+		Lcd_cursor(&lcd,0,1);
+		Lcd_string(&lcd,"key +\n");
+		HAL_Delay(500);
+		col4=1;
+	}
+}
+void SystemClock_Config(void)
+{
+  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+
+  __HAL_RCC_PWR_CLK_ENABLE();
+  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE2);
+
+
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
+  {
+    Error_Handler();
+  }
+}
+
+static void MX_GPIO_Init(void)
+{
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+  __HAL_RCC_GPIOC_CLK_ENABLE();
+  __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
+
+  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3, GPIO_PIN_RESET);
+
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3, GPIO_PIN_RESET);
+
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0|GPIO_PIN_1, GPIO_PIN_RESET);
+
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  GPIO_InitStruct.Pin = GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+void Error_Handler(void)
+{
+  __disable_irq();
+  while (1)
+  {
+  }
+}
+
+#ifdef  USE_FULL_ASSERT
+void assert_failed(uint8_t *file, uint32_t line){}
+#endif 
+```
+
+## CIRCUIT DIAGRAM :
+
+![image](https://github.com/Pavan-Gv/EXPERIMENT--05-INTERFACING-A-4X4-MATRIX-KEYPAD-AND-DISPLAY-THE-OUTPUT-ON-LCD/assets/94827772/06b88397-124a-46d0-88b9-bd7136fec7b6)
+
+## Output screen shots of proteus : 
+
+![image](https://github.com/Pavan-Gv/EXPERIMENT--05-INTERFACING-A-4X4-MATRIX-KEYPAD-AND-DISPLAY-THE-OUTPUT-ON-LCD/assets/94827772/40d3c4f9-a28d-4c37-bc47-12fddceaa8bd)
+
 ## Result :
 Interfacing a 4x4 keypad with ARM microcontroller are simulated in proteus and the results are verified.
